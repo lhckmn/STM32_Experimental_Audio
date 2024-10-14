@@ -1,0 +1,18 @@
+!SESSION 2024-10-14 22:39:06.895 -----------------------------------------------
+eclipse.buildId=Version 1.16.0
+java.version=17.0.11
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=de_DE
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 -data C:\Users\leand\git\STM32_Experimental_Audio\PWM\workspace-stm32
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2024-10-14 22:39:10.647
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2024-10-14 22:39:10.665
+!MESSAGE Log4j2 initialized with config file C:\Users\leand\git\STM32_Experimental_Audio\PWM\workspace-stm32\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2024-10-14 22:39:12.668
+!MESSAGE Started RMI Server, listening on port 41337
+
+!ENTRY org.eclipse.cdt.core 1 0 2024-10-14 22:40:08.151
+!MESSAGE Indexed 'bluePill_PWM_audio' (21 sources, 111 headers) in 3.11 sec: 9,248 declarations; 50,426 references; 2 unresolved inclusions; 36 syntax errors; 188 unresolved names (0.31%)
