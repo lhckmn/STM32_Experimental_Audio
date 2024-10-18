@@ -117,8 +117,14 @@ int main(void)
   //Starting TIM3 with interrupts
   HAL_TIM_Base_Start_IT(&htim3);
 
+
   //Starting TIM2
-  HAL_TIM_Base_Start(&htim2);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
+
+  //htim2.Instance->CCR1 = 512;
+  //htim2.Instance->CCR2 = 256;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -277,6 +283,10 @@ static void MX_TIM2_Init(void)
   {
     Error_Handler();
   }
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+  {
+    Error_Handler();
+  }
   /* USER CODE BEGIN TIM2_Init 2 */
 
   /* USER CODE END TIM2_Init 2 */
@@ -413,7 +423,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 			adc_buffer_pos = 0;
 		}
 
-		TIM2->CCR1 = adc_buffer[adc_buffer_pos] >> 2;
+		htim2.Instance->CCR1 = adc_buffer[adc_buffer_pos] >> 2;
+		//TIM2->CCR1 = adc_buffer[adc_buffer_pos] >> 2;
 	}
 }
 
