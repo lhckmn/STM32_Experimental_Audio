@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdbool.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -31,7 +31,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define ADC_BUFFER_SIZE 2048
+#define BUFFER_SIZE 2048
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -47,8 +47,12 @@ TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 
 /* USER CODE BEGIN PV */
-uint16_t adc_buffer[ADC_BUFFER_SIZE];
-volatile uint16_t adc_buffer_pos;
+uint16_t adc_buffer[BUFFER_SIZE];
+uint16_t dac_buffer[BUFFER_SIZE];
+
+volatile uint16_t curr_sample_pos;
+bool processLowerBuffer;
+bool processUpperBuffer;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -75,14 +79,20 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-  //Clearing the ADC buffer
-  for(uint16_t i = 0; i < ADC_BUFFER_SIZE; i++)
+  //Clearing the buffers
+  for(uint16_t i = 0; i < BUFFER_SIZE; i++)
   {
 	  adc_buffer[i] = 0;
+	  dac_buffer[i] = 0;
   }
 
   //Setting the index of the current position to the second half
-  adc_buffer_pos = ADC_BUFFER_SIZE / 2;
+  curr_sample_pos = BUFFER_SIZE / 2;
+
+  //Resetting flags
+  processLowerBuffer = false;
+  processUpperBuffer = false;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -109,8 +119,14 @@ int main(void)
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
+  //Turning off the LED (inversed)
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, 1);
+
+  //Turning off help GPIO
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, 0);
+
   //Starting the ADC module
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buffer, ADC_BUFFER_SIZE);
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buffer, BUFFER_SIZE);
 
   //Starting TIM3 with interrupts
   HAL_TIM_Base_Start_IT(&htim3);
@@ -119,15 +135,41 @@ int main(void)
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
 
-  //htim2.Instance->CCR1 = 512;
-  //htim2.Instance->CCR2 = 256;
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  //Processing the lower half of the ADC's buffer if flag was set
+	  if(processLowerBuffer == true)
+	  {
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, 1);
+
+		  for(uint16_t i = 0; i < BUFFER_SIZE/2; i++)
+		  {
+			  dac_buffer[i] = adc_buffer[i];
+		  }
+
+		  processLowerBuffer = false;
+
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, 0);
+	  }
+
+	  //Processing the upper half of the ADC's buffer if flag was set
+	  if(processUpperBuffer == true)
+	  {
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, 1);
+
+		  for(uint16_t i = BUFFER_SIZE/2; i < BUFFER_SIZE; i++)
+		  {
+			  dac_buffer[i] = adc_buffer[i];
+		  }
+
+		  processUpperBuffer = false;
+
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, 0);
+	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -248,7 +290,7 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 1;
+  htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim2.Init.Period = 63;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -313,7 +355,7 @@ static void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 0;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 2046;
+  htim3.Init.Period = 4999;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
@@ -360,7 +402,7 @@ static void MX_DMA_Init(void)
 
   /* DMA interrupt init */
   /* DMA1_Channel1_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 1, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
 
 }
@@ -385,12 +427,22 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET);
+
   /*Configure GPIO pin : PC13 */
   GPIO_InitStruct.Pin = GPIO_PIN_13;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PB7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_7;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
@@ -402,18 +454,34 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 	if(htim->Instance == TIM3)
 	{
 		//Incrementing the position of the current sample
-		adc_buffer_pos = adc_buffer_pos + 1;
+		curr_sample_pos++;
 		//Wrapping around if end of the ADC buffer was reached
-		if(adc_buffer_pos >= ADC_BUFFER_SIZE)
+		if(curr_sample_pos >= BUFFER_SIZE)
 		{
-			adc_buffer_pos = 0;
+			curr_sample_pos = 0;
 		}
 
-		htim2.Instance->CCR1 = (adc_buffer[adc_buffer_pos] & 0b111111000000) >> 6;
-		htim2.Instance->CCR2 = adc_buffer[adc_buffer_pos] & 0b111111;
+		//Setting the output sample's upper six bits to CCR1 (channel 1) and the lower six bits to CCR2 (channel 2)
+		htim2.Instance->CCR1 = (dac_buffer[curr_sample_pos] & 0xFC0) >> 6;
+		htim2.Instance->CCR2 = dac_buffer[curr_sample_pos] & 0xF3;
+
+		//Setting flag for processing the lower half of the ADC's buffer
+		if(curr_sample_pos == BUFFER_SIZE/2)
+		{
+			processLowerBuffer = true;
+			return;
+		}
+
+		//Setting flag for processing the upper half of the ADC's buffer
+		if(curr_sample_pos == BUFFER_SIZE-1)
+		{
+			processUpperBuffer = true;
+			return;
+		}
 	}
 }
 
+/*
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
 {
 
@@ -423,6 +491,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
 
 }
+*/
 /* USER CODE END 4 */
 
 /**
