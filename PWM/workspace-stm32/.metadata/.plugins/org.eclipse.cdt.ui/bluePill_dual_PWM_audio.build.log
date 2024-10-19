@@ -1,4 +1,4 @@
-17:08:16 **** Incremental Build of configuration Debug for project bluePill_dual_PWM_audio ****
+17:12:15 **** Incremental Build of configuration Debug for project bluePill_dual_PWM_audio ****
 make -j20 all 
 arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103xB -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
 arm-none-eabi-gcc -o "bluePill_dual_PWM_audio.elf" @"objects.list"   -mcpu=cortex-m3 -T"C:\Users\leand\git\STM32_Experimental_Audio\PWM\workspace-stm32\bluePill_dual_PWM_audio\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="bluePill_dual_PWM_audio.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
@@ -7,11 +7,11 @@ Finished building target: bluePill_dual_PWM_audio.elf
 arm-none-eabi-size  bluePill_dual_PWM_audio.elf 
 arm-none-eabi-objdump -h -S bluePill_dual_PWM_audio.elf  > "bluePill_dual_PWM_audio.list"
    text	   data	    bss	    dec	    hex	filename
-  13536	     12	  10028	  23576	   5c18	bluePill_dual_PWM_audio.elf
+  13540	     12	  10028	  23580	   5c1c	bluePill_dual_PWM_audio.elf
 Finished building: default.size.stdout
  
 Finished building: bluePill_dual_PWM_audio.list
  
 
-17:08:17 Build Finished. 0 errors, 0 warnings. (took 591ms)
+17:12:16 Build Finished. 0 errors, 0 warnings. (took 1s.115ms)
 
