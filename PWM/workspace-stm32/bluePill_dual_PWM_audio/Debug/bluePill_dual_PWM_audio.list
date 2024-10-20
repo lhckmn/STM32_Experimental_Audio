@@ -21,9 +21,9 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
   8 .data         0000000c  20000000  080034e4  00005000  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  9 .bss          00002128  2000000c  080034f0  0000500c  2**2
+  9 .bss          00001128  2000000c  080034f0  0000500c  2**2
                   ALLOC
- 10 ._user_heap_stack 00000604  20002134  080034f0  00005134  2**0
+ 10 ._user_heap_stack 00000604  20001134  080034f0  00005134  2**0
                   ALLOC
  11 .ARM.attributes 00000029  00000000  00000000  0000500c  2**0
                   CONTENTS, READONLY
@@ -111,14 +111,14 @@ int main(void)
  800016e:	3301      	adds	r3, #1
  8000170:	80fb      	strh	r3, [r7, #6]
  8000172:	88fb      	ldrh	r3, [r7, #6]
- 8000174:	f5b3 6f00 	cmp.w	r3, #2048	@ 0x800
+ 8000174:	f5b3 6f80 	cmp.w	r3, #1024	@ 0x400
  8000178:	d3ee      	bcc.n	8000158 <main+0xc>
   }
 
   //Setting the index of the current position to the second half
   curr_sample_pos = BUFFER_SIZE / 2;
  800017a:	4b40      	ldr	r3, [pc, #256]	@ (800027c <main+0x130>)
- 800017c:	f44f 6280 	mov.w	r2, #1024	@ 0x400
+ 800017c:	f44f 7200 	mov.w	r2, #512	@ 0x200
  8000180:	801a      	strh	r2, [r3, #0]
 
   //Resetting flags
@@ -177,7 +177,7 @@ int main(void)
 
   //Starting the ADC module
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buffer, BUFFER_SIZE);
- 80001c0:	f44f 6200 	mov.w	r2, #2048	@ 0x800
+ 80001c0:	f44f 6280 	mov.w	r2, #1024	@ 0x400
  80001c4:	492b      	ldr	r1, [pc, #172]	@ (8000274 <main+0x128>)
  80001c6:	4832      	ldr	r0, [pc, #200]	@ (8000290 <main+0x144>)
  80001c8:	f000 fdb8 	bl	8000d3c <HAL_ADC_Start_DMA>
@@ -230,7 +230,7 @@ int main(void)
  800020c:	3301      	adds	r3, #1
  800020e:	80bb      	strh	r3, [r7, #4]
  8000210:	88bb      	ldrh	r3, [r7, #4]
- 8000212:	f5b3 6f80 	cmp.w	r3, #1024	@ 0x400
+ 8000212:	f5b3 7f00 	cmp.w	r3, #512	@ 0x200
  8000216:	d3f0      	bcc.n	80001fa <main+0xae>
 		  }
 
@@ -260,7 +260,7 @@ int main(void)
  8000236:	f001 fcf5 	bl	8001c24 <HAL_GPIO_WritePin>
 
 		  for(uint16_t i = BUFFER_SIZE/2; i < BUFFER_SIZE; i++)
- 800023a:	f44f 6380 	mov.w	r3, #1024	@ 0x400
+ 800023a:	f44f 7300 	mov.w	r3, #512	@ 0x200
  800023e:	807b      	strh	r3, [r7, #2]
  8000240:	e00a      	b.n	8000258 <main+0x10c>
 		  {
@@ -276,7 +276,7 @@ int main(void)
  8000254:	3301      	adds	r3, #1
  8000256:	807b      	strh	r3, [r7, #2]
  8000258:	887b      	ldrh	r3, [r7, #2]
- 800025a:	f5b3 6f00 	cmp.w	r3, #2048	@ 0x800
+ 800025a:	f5b3 6f80 	cmp.w	r3, #1024	@ 0x400
  800025e:	d3f0      	bcc.n	8000242 <main+0xf6>
 		  }
 
@@ -294,10 +294,10 @@ int main(void)
  8000270:	e7b7      	b.n	80001e2 <main+0x96>
  8000272:	bf00      	nop
  8000274:	2000012c 	.word	0x2000012c
- 8000278:	2000112c 	.word	0x2000112c
- 800027c:	2000212c 	.word	0x2000212c
- 8000280:	2000212e 	.word	0x2000212e
- 8000284:	2000212f 	.word	0x2000212f
+ 8000278:	2000092c 	.word	0x2000092c
+ 800027c:	2000112c 	.word	0x2000112c
+ 8000280:	2000112e 	.word	0x2000112e
+ 8000284:	2000112f 	.word	0x2000112f
  8000288:	40011000 	.word	0x40011000
  800028c:	40010c00 	.word	0x40010c00
  8000290:	20000028 	.word	0x20000028
@@ -1056,7 +1056,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
  80006ec:	4b1f      	ldr	r3, [pc, #124]	@ (800076c <HAL_TIM_PeriodElapsedCallback+0xa0>)
  80006ee:	881b      	ldrh	r3, [r3, #0]
  80006f0:	b29b      	uxth	r3, r3
- 80006f2:	f5b3 6f00 	cmp.w	r3, #2048	@ 0x800
+ 80006f2:	f5b3 6f80 	cmp.w	r3, #1024	@ 0x400
  80006f6:	d302      	bcc.n	80006fe <HAL_TIM_PeriodElapsedCallback+0x32>
 		{
 			curr_sample_pos = 0;
@@ -1097,7 +1097,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
  8000734:	4b0d      	ldr	r3, [pc, #52]	@ (800076c <HAL_TIM_PeriodElapsedCallback+0xa0>)
  8000736:	881b      	ldrh	r3, [r3, #0]
  8000738:	b29b      	uxth	r3, r3
- 800073a:	f5b3 6f80 	cmp.w	r3, #1024	@ 0x400
+ 800073a:	f5b3 7f00 	cmp.w	r3, #512	@ 0x200
  800073e:	d103      	bne.n	8000748 <HAL_TIM_PeriodElapsedCallback+0x7c>
 		{
 			processLowerBuffer = true;
@@ -1113,7 +1113,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
  8000748:	4b08      	ldr	r3, [pc, #32]	@ (800076c <HAL_TIM_PeriodElapsedCallback+0xa0>)
  800074a:	881b      	ldrh	r3, [r3, #0]
  800074c:	b29b      	uxth	r3, r3
- 800074e:	f240 72ff 	movw	r2, #2047	@ 0x7ff
+ 800074e:	f240 32ff 	movw	r2, #1023	@ 0x3ff
  8000752:	4293      	cmp	r3, r2
  8000754:	d103      	bne.n	800075e <HAL_TIM_PeriodElapsedCallback+0x92>
 		{
@@ -1132,11 +1132,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
  8000764:	4770      	bx	lr
  8000766:	bf00      	nop
  8000768:	40000400 	.word	0x40000400
- 800076c:	2000212c 	.word	0x2000212c
- 8000770:	2000112c 	.word	0x2000112c
+ 800076c:	2000112c 	.word	0x2000112c
+ 8000770:	2000092c 	.word	0x2000092c
  8000774:	2000009c 	.word	0x2000009c
- 8000778:	2000212e 	.word	0x2000212e
- 800077c:	2000212f 	.word	0x2000212f
+ 8000778:	2000112e 	.word	0x2000112e
+ 800077c:	2000112f 	.word	0x2000112f
 
 08000780 <Error_Handler>:
 /**
@@ -1866,7 +1866,7 @@ LoopFillZerobss:
   ldr r2, =_sbss
  8000abc:	2000000c 	.word	0x2000000c
   ldr r4, =_ebss
- 8000ac0:	20002134 	.word	0x20002134
+ 8000ac0:	20001134 	.word	0x20001134
 
 08000ac4 <ADC1_2_IRQHandler>:
  * @retval : None
@@ -2014,7 +2014,7 @@ __weak void HAL_IncTick(void)
  8000b6c:	bc80      	pop	{r7}
  8000b6e:	4770      	bx	lr
  8000b70:	20000008 	.word	0x20000008
- 8000b74:	20002130 	.word	0x20002130
+ 8000b74:	20001130 	.word	0x20001130
 
 08000b78 <HAL_GetTick>:
   * @note  This function is declared as __weak to be overwritten in case of other
@@ -2033,7 +2033,7 @@ __weak uint32_t HAL_GetTick(void)
  8000b82:	46bd      	mov	sp, r7
  8000b84:	bc80      	pop	{r7}
  8000b86:	4770      	bx	lr
- 8000b88:	20002130 	.word	0x20002130
+ 8000b88:	20001130 	.word	0x20001130
 
 08000b8c <HAL_ADC_Init>:
   *         of structure "ADC_InitTypeDef".
