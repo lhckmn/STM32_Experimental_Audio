@@ -79,8 +79,7 @@ static void MX_ADC1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
-q15_t convert_adc_to_q15(uint16_t input);
-uint16_t convert_q15_to_dac(q15_t input);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -163,14 +162,15 @@ int main(void) {
 			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, 1);
 
 			for (uint16_t i = 0; i < BUFFER_SIZE / 2; i++) {
-				filter1_in[i] = convert_adc_to_q15(adc_buffer[i]);
+				filter1_in[i] = (q15_t) ((adc_buffer[i] * 32767) / 4095);
 			}
 
 			arm_fir_fast_q15(&filter1, filter1_in_ptr, filter1_out_ptr,
 			BUFFER_SIZE / 2);
 
 			for (uint16_t i = 0; i < BUFFER_SIZE / 2; i++) {
-				dac_buffer[i] = convert_q15_to_dac(filter1_out[i]);
+				dac_buffer[i] = (uint16_t) (((filter1_out[i] + 32768) * 4095)
+						/ 65535);
 			}
 
 			processLowerBuffer = false;
@@ -183,14 +183,15 @@ int main(void) {
 			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, 1);
 
 			for (uint16_t i = BUFFER_SIZE / 2; i < BUFFER_SIZE; i++) {
-				filter1_in[i] = convert_adc_to_q15(adc_buffer[i]);
+				filter1_in[i] = (q15_t) ((adc_buffer[i] * 32767) / 4095);
 			}
 
 			arm_fir_fast_q15(&filter1, filter1_in_ptr + (BUFFER_SIZE / 2),
 					filter1_out_ptr + (BUFFER_SIZE / 2), BUFFER_SIZE / 2);
 
 			for (uint16_t i = BUFFER_SIZE / 2; i < BUFFER_SIZE; i++) {
-				dac_buffer[i] = convert_q15_to_dac(filter1_out[i]);
+				dac_buffer[i] = (uint16_t) (((filter1_out[i] + 32768) * 4095)
+						/ 65535);
 			}
 
 			processUpperBuffer = false;
@@ -498,14 +499,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  }
  */
 
-//Function to convert 12-bit ADC data to q15_t
-q15_t convert_adc_to_q15(uint16_t input) {
-	return (q15_t)((input << 3) - 32768);
+q15_t convert_uint16_to_q15(uint16_t input) {
+    //Scaling the uint16_t input (0 to 65535) to q15_t (-32768 to 32767)
+    return (q15_t) ((input >> 1) - 32768);  // Shift and center
 }
 
-//Function to convert q15_t to 12-bit DAC data
-uint16_t convert_q15_to_dac(q15_t input) {
-	return (uint16_t)((input + 32768) >> 3);
+uint16_t convert_q15_to_uint16(q15_t input) {
+    //Converting q15_t (-32768 to 32767) to uint16_t (0 to 65535)
+    return (uint16_t) (__QADD16(input + 32768, 0) << 1);  // Center, saturate, and scale
 }
 /* USER CODE END 4 */
 

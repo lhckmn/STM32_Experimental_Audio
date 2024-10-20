@@ -163,14 +163,14 @@ int main(void) {
 			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, 1);
 
 			for (uint16_t i = 0; i < BUFFER_SIZE / 2; i++) {
-				filter1_in[i] = convert_adc_to_q15(adc_buffer[i]);
+				filter1_in[i] = convert_uint16_to_q15(adc_buffer[i]);
 			}
 
 			arm_fir_fast_q15(&filter1, filter1_in_ptr, filter1_out_ptr,
 			BUFFER_SIZE / 2);
 
 			for (uint16_t i = 0; i < BUFFER_SIZE / 2; i++) {
-				dac_buffer[i] = convert_q15_to_dac(filter1_out[i]);
+				dac_buffer[i] = convert_q15_to_uint16(filter1_out[i]);
 			}
 
 			processLowerBuffer = false;
@@ -183,14 +183,14 @@ int main(void) {
 			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, 1);
 
 			for (uint16_t i = BUFFER_SIZE / 2; i < BUFFER_SIZE; i++) {
-				filter1_in[i] = convert_adc_to_q15(adc_buffer[i]);
+				filter1_in[i] = convert_uint16_to_q15(adc_buffer[i]);
 			}
 
 			arm_fir_fast_q15(&filter1, filter1_in_ptr + (BUFFER_SIZE / 2),
 					filter1_out_ptr + (BUFFER_SIZE / 2), BUFFER_SIZE / 2);
 
 			for (uint16_t i = BUFFER_SIZE / 2; i < BUFFER_SIZE; i++) {
-				dac_buffer[i] = convert_q15_to_dac(filter1_out[i]);
+				dac_buffer[i] = convert_q15_to_uint16(filter1_out[i]);
 			}
 
 			processUpperBuffer = false;
